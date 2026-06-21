@@ -80,6 +80,12 @@ def main():
     parser.add_argument('--method', type=str, default='DSA', choices=['DC', 'DSA'], help='DC/DSA')
     parser.add_argument('--dsa_strategy', type=str, default='color_crop_cutout_flip_scale_rotate', help='differentiable Siamese augmentation strategy')
     parser.add_argument('--opt_net_mom', type=float, default=0, help='0 in DSA, 0.5 in DC')
+    #### learnable multi-kernel MMD
+    parser.add_argument('--learnable_kernel', type=int, default=1, help='use learnable multi-kernel MMD (1=enabled, 0=fixed)')
+    parser.add_argument('--kernel_ent_weight', type=float, default=0.01, help='entropy regularisation weight for kernel mixture')
+    parser.add_argument('--kernel_bw_reg', type=float, default=0.001, help='bandwidth deviation regularisation weight')
+    parser.add_argument('--kernel_type', type=str, default='gaussian', choices=['gaussian', 'laplace', 'linear', 'polynomial'], help='kernel type for M3D loss')
+    parser.add_argument('--kernel_lr_scale', type=float, default=0.1, help='learning rate scale for kernel params relative to lr_img')
     args = parser.parse_args()
     # For speeding up, we can decrease the Iteration and epoch_eval_train, which will not cause significant performance decrease.
 
@@ -121,6 +127,8 @@ def main():
     if args.no_aug: exp_id += '[no_aug]'
     if args.method == 'DSA' and args.opt_net_mom != 0: exp_id += f'_[mom{args.opt_net_mom}]'
     if args.method == 'DC' and args.opt_net_mom != 0.5: exp_id += f'_[mom{args.opt_net_mom}]'
+    if not args.learnable_kernel: exp_id += '[fixed-kernel]'
+    if args.learnable_kernel: exp_id += f'_[lk-{args.kernel_type}][ent-{args.kernel_ent_weight}]'
     if args.tag and args.tag != 'none': exp_id += f'_[tag-{args.tag}]'
     if args.tag == 'none': exp_id += f'_[num_users-{args.num_users}]_[frac-{args.frac}]_[extre-{args.extreme}]'
     if 'debug' in args.tag: exp_id = args.tag
@@ -197,7 +205,23 @@ def main():
             #### training initialize synthetic data 
             #给每个客户端生成一个LocalUser，包括 划分好的数据集，合成样本
             user_states[idx] = LocalUser(dst_perlabel, image_syn)
-            
+
+        # --- Per-client learnable M3D criterion (persists across rounds) ---
+        user_m3d = {}
+        for idx in range(args.num_users):
+            user_m3d[idx] = M3DLoss(
+                kernel_type=args.kernel_type,
+                n_kernels=5,
+                learnable=bool(args.learnable_kernel),
+                ent_weight=args.kernel_ent_weight,
+                bw_reg_weight=args.kernel_bw_reg,
+            ).cuda()
+            if args.learnable_kernel:
+                logging.info('User %d: learnable M3D kernel initialised '
+                             '(kernel_type=%s, ent_weight=%.4f, bw_reg=%.4f)' %
+                             (idx, args.kernel_type, args.kernel_ent_weight,
+                              args.kernel_bw_reg))
+
         logging.info('%s training begins'%get_time())
         fed_accs = []
         global_model = get_network(args.model, channel, num_classes, im_size).cuda()
@@ -253,12 +277,17 @@ def main():
 
 
                 image_syn.requires_grad_()
-                optimizer_img = get_optimizer([image_syn, ], args.opt_X, lr=args.lr_img, weight_decay=0, rho=0, momentum=0.5)
+                # --- Retrieve persisted per-client learnable M3D criterion ---
+                m3d_criterion = user_m3d[idx]
+
+                # Build optimizer: synthetic images + (optionally) learnable kernel params
+                opt_params = [image_syn]
+                if args.learnable_kernel:
+                    kernel_params = list(m3d_criterion.kernel_parameters())
+                    opt_params.extend(kernel_params)
+                optimizer_img = get_optimizer(opt_params, args.opt_X, lr=args.lr_img,
+                                              weight_decay=0, rho=0, momentum=0.5)
                 optimizer_img.zero_grad()
-                # ---add M3D----------
-                m3d_criterion = M3DLoss(kernel_type='gaussian')
-                
-                ce_criterion = nn.CrossEntropyLoss()
                 for it in range(args.Iteration+1):
                     loss_avg = 0
                     if curr_epoch != 0:
@@ -323,6 +352,11 @@ def main():
                     optimizer_img.zero_grad()
                     loss.backward()
 
+                    # Scale kernel parameter gradients for effective lr = lr_img * kernel_lr_scale
+                    if args.learnable_kernel:
+                        for p in m3d_criterion.kernel_parameters():
+                            if p.grad is not None:
+                                p.grad.mul_(args.kernel_lr_scale)
 
                     optimizer_img.step()
                     loss_avg += loss.item()
@@ -331,6 +365,24 @@ def main():
                     loss_avg /= len(classes)
                     if it % 500 == 0 or it == args.Iteration:
                         logging.info('%s user %d loss = %.4f at iteration %d' % (get_time(), idx, loss_avg, it))
+                        if args.learnable_kernel:
+                            kw = m3d_criterion.get_kernel_weights()
+                            bw = m3d_criterion.get_bandwidth_multipliers()
+                            if kw is not None:
+                                logging.info('  [Kernel] weights: %s' % str(kw.numpy()))
+                            if bw is not None:
+                                logging.info('  [Kernel] bandwidth multipliers: %s' % str(bw.numpy()))
+
+                # --- Log final kernel configuration after inner loop ---
+                if args.learnable_kernel:
+                    kw_final = m3d_criterion.get_kernel_weights()
+                    bw_final = m3d_criterion.get_bandwidth_multipliers()
+                    logging.info('%s user %d [Kernel Final] epoch=%d weights=%s' %
+                                 (get_time(), idx, curr_epoch,
+                                  str(kw_final.numpy()) if kw_final is not None else 'N/A'))
+                    if bw_final is not None:
+                        logging.info('%s user %d [Kernel Final] epoch=%d bandwidths=%s' %
+                                     (get_time(), idx, curr_epoch, str(bw_final.numpy())))
 
                 image_syn_train, label_syn_train = copy.deepcopy(image_syn.detach()), copy.deepcopy(labs_syn.detach())
                 curr_img_syn.append(image_syn_train)
