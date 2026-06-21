@@ -146,8 +146,10 @@ def main():
     ## output files
     args.ckpt_path = os.path.join(args.save, 'ckpts')
     args.vis_path  = os.path.join(args.save, 'vis')
-    os.makedirs(args.ckpt_path)
-    os.makedirs(args.vis_path)
+    args.kernel_path = os.path.join(args.save, 'kernel_states')
+    os.makedirs(args.ckpt_path, exist_ok=True)
+    os.makedirs(args.vis_path, exist_ok=True)
+    os.makedirs(args.kernel_path, exist_ok=True)
     # logging
     log_format = '%(message)s'
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format=log_format)
@@ -221,6 +223,27 @@ def main():
                              '(kernel_type=%s, ent_weight=%.4f, bw_reg=%.4f)' %
                              (idx, args.kernel_type, args.kernel_ent_weight,
                               args.kernel_bw_reg))
+
+        # --- Save per-client data statistics for kernel–data correlation analysis ---
+        client_stats = {}
+        for idx in range(args.num_users):
+            classes = dict_classes[idx]
+            data_idxs = dict_users[idx]
+            labels = np.array(dst_train.targets, dtype='int64')
+            client_labels = labels[data_idxs]
+            unique, counts = np.unique(client_labels, return_counts=True)
+            # Label entropy: measures class balance (low = skewed non-IID)
+            prob = counts / counts.sum()
+            label_entropy = -np.sum(prob * np.log(prob + 1e-8))
+            client_stats[idx] = {
+                'num_classes': len(classes),
+                'classes': list(map(int, classes)),
+                'num_samples': len(data_idxs),
+                'label_distribution': {int(k): int(v) for k, v in zip(unique, counts)},
+                'label_entropy': float(label_entropy),
+            }
+        torch.save(client_stats, os.path.join(args.kernel_path,
+                                               'exp%d_client_stats.pt' % exp))
 
         logging.info('%s training begins'%get_time())
         fed_accs = []
@@ -439,11 +462,22 @@ def main():
             global_model, acc_syns_train, acc_full_test = evaluate_synset(curr_epoch, global_model, all_img_syn_eval, all_lbl_syn_eval,cur_img_syn_eval, cur_lbl_syn_eval, testloader, args, weight=all_weight_eval)
             logging.info('%s Epoch = %04d test acc = %.4f' % (get_time(), curr_epoch, acc_full_test))
             fed_accs.append(acc_full_test)
-            
-            
-                
-            
-        
+
+            # --- Save kernel state for ALL clients after each epoch ---
+            if args.learnable_kernel:
+                kernel_state = {}
+                for uidx in range(args.num_users):
+                    kw = user_m3d[uidx].get_kernel_weights()
+                    bw = user_m3d[uidx].get_bandwidth_multipliers()
+                    gm = user_m3d[uidx].get_gammas()
+                    kernel_state[uidx] = {
+                        'weights': kw.cpu() if kw is not None else None,
+                        'bandwidth_multipliers': bw.cpu() if bw is not None else None,
+                        'gammas': gm.cpu() if gm is not None else None,
+                    }
+                torch.save(kernel_state, os.path.join(
+                    args.kernel_path, 'exp%d_epoch%03d_kernel.pt' % (exp, curr_epoch)))
+
         exp_acc_list.append(fed_accs)
 
     
