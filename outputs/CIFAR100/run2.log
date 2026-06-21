@@ -1,0 +1,688 @@
+nohup: ignoring input
+ConvNet
+Data statistics: {0: {np.int64(0): np.int64(11), np.int64(1): np.int64(66), np.int64(2): np.int64(101), np.int64(3): np.int64(181), np.int64(4): np.int64(272), np.int64(5): np.int64(10), np.int64(6): np.int64(43), np.int64(7): np.int64(24), np.int64(8): np.int64(56), np.int64(9): np.int64(28)}, 1: {np.int64(0): np.int64(12), np.int64(1): np.int64(2), np.int64(2): np.int64(32), np.int64(3): np.int64(20), np.int64(4): np.int64(186), np.int64(5): np.int64(356), np.int64(6): np.int64(5), np.int64(7): np.int64(1), np.int64(8): np.int64(366), np.int64(9): np.int64(280)}, 2: {np.int64(0): np.int64(64), np.int64(1): np.int64(248), np.int64(2): np.int64(25), np.int64(3): np.int64(1), np.int64(4): np.int64(40), np.int64(5): np.int64(4), np.int64(6): np.int64(13), np.int64(7): np.int64(11), np.int64(8): np.int64(19), np.int64(9): np.int64(8)}, 3: {np.int64(0): np.int64(402), np.int64(1): np.int64(114), np.int64(2): np.int64(285), np.int64(3): np.int64(273), np.int64(5): np.int64(128), np.int64(6): np.int64(56), np.int64(7): np.int64(214), np.int64(8): np.int64(13), np.int64(9): np.int64(107)}, 4: {np.int64(0): np.int64(11), np.int64(1): np.int64(70), np.int64(2): np.int64(57), np.int64(3): np.int64(25), np.int64(4): np.int64(2), np.int64(5): np.int64(2), np.int64(6): np.int64(383), np.int64(7): np.int64(250), np.int64(8): np.int64(46), np.int64(9): np.int64(77)}}
+{0: [np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8), np.int64(9)], 1: [np.int64(0), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(8), np.int64(9)], 2: [np.int64(0), np.int64(1), np.int64(2), np.int64(4), np.int64(6), np.int64(7), np.int64(8)], 3: [np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(5), np.int64(6), np.int64(7), np.int64(8), np.int64(9)], 4: [np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(6), np.int64(7), np.int64(8), np.int64(9)]}
+/home/ljq/DZH/FL/feddm/main_our.py:176: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at /pytorch/torch/csrc/utils/tensor_new.cpp:253.)
+  label_syn = torch.tensor([np.ones(args.ipc)*i for i in range(num_classes)], dtype=torch.long, requires_grad=False, device=args.device).view(-1)
+/home/ljq/DZH/FL/feddm/dataset/dataset.py:317: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.detach().clone() or sourceTensor.detach().clone().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  return torch.tensor(image), torch.tensor(label)
+[2026-05-13 09:54:57] training begins
+  0%|          | 0/20 [00:00<?, ?it/s]
+================== Epoch 0 ==================
+
+Choosing users 3 2 4 0 1
+initialize synthetic data from random real images with pseudo labels
+/home/ljq/anaconda3/envs/D3HR/lib/python3.10/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/home/ljq/DZH/FL/feddm/dataset/dataset.py:485: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  grid = F.affine_grid(theta, x.shape).to(x.device)
+/home/ljq/DZH/FL/feddm/dataset/dataset.py:486: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  x = F.grid_sample(x, grid)
+/home/ljq/DZH/FL/feddm/dataset/dataset.py:471: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  grid = F.affine_grid(theta, x.shape).to(x.device)
+/home/ljq/DZH/FL/feddm/dataset/dataset.py:472: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  x = F.grid_sample(x, grid)
+/home/ljq/DZH/FL/feddm/optimizer_cust.py:111: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha = 1) (Triggered internally at /pytorch/torch/csrc/utils/python_arg_parser.cpp:1862.)
+  p.data.add_(-group['lr'], d_p)
+[2026-05-13 09:54:58] user 3 loss = 2.4000 at iteration 0
+[2026-05-13 09:58:21] user 3 loss = 2.3755 at iteration 500
+[2026-05-13 10:01:45] user 3 loss = 2.3577 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:01:45] user 2 loss = 2.3202 at iteration 0
+[2026-05-13 10:04:27] user 2 loss = 2.3088 at iteration 500
+[2026-05-13 10:06:57] user 2 loss = 2.3005 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:06:58] user 4 loss = 2.3542 at iteration 0
+[2026-05-13 10:09:51] user 4 loss = 2.3368 at iteration 500
+[2026-05-13 10:12:37] user 4 loss = 2.3325 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:12:38] user 0 loss = 2.3206 at iteration 0
+[2026-05-13 10:16:03] user 0 loss = 2.3227 at iteration 500
+[2026-05-13 10:19:27] user 0 loss = 2.3242 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:19:27] user 1 loss = 2.3733 at iteration 0
+[2026-05-13 10:22:07] user 1 loss = 2.3438 at iteration 500
+[2026-05-13 10:24:35] user 1 loss = 2.3550 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 75334}
+[2026-05-13 10:24:36] Evaluate_00: epoch = 0000 test acc = 0.0097
+[2026-05-13 10:25:05] Evaluate_00: epoch = 0500 train loss = 0.011625 train acc = 0.9976, test acc = 0.0605
+[2026-05-13 10:25:38] Evaluate_00: epoch = 1000 train loss = 0.003755 train acc = 1.0000, test acc = 0.0602
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 10:25:38] Epoch = 0000 test acc = 0.0602
+  5%|▌         | 1/20 [30:41<9:43:05, 1841.35s/it]
+================== Epoch 1 ==================
+
+Choosing users 4 0 1 3 2
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:25:39] user 4 loss = 4.7453 at iteration 0
+[2026-05-13 10:28:45] user 4 loss = 4.6962 at iteration 500
+[2026-05-13 10:31:51] user 4 loss = 4.6703 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:31:52] user 0 loss = 4.6976 at iteration 0
+[2026-05-13 10:35:50] user 0 loss = 4.6435 at iteration 500
+[2026-05-13 10:39:28] user 0 loss = 4.6279 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:39:29] user 1 loss = 4.7137 at iteration 0
+[2026-05-13 10:42:02] user 1 loss = 4.6670 at iteration 500
+[2026-05-13 10:44:40] user 1 loss = 4.6457 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:44:41] user 3 loss = 4.7758 at iteration 0
+[2026-05-13 10:48:00] user 3 loss = 4.7288 at iteration 500
+[2026-05-13 10:51:24] user 3 loss = 4.7103 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:51:24] user 2 loss = 4.6015 at iteration 0
+[2026-05-13 10:54:08] user 2 loss = 4.5832 at iteration 500
+[2026-05-13 10:56:45] user 2 loss = 4.5772 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 5132}
+[2026-05-13 10:56:46] Evaluate_01: epoch = 0000 test acc = 0.0602
+[2026-05-13 10:57:47] Evaluate_01: epoch = 0500 train loss = 0.002286 train acc = 1.0000, test acc = 0.0647
+[2026-05-13 10:58:54] Evaluate_01: epoch = 1000 train loss = 0.003636 train acc = 0.9988, test acc = 0.0669
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 10:58:54] Epoch = 0001 test acc = 0.0669
+ 10%|█         | 2/20 [1:03:57<9:39:45, 1932.51s/it]
+================== Epoch 2 ==================
+
+Choosing users 3 0 2 1 4
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 10:58:55] user 3 loss = 4.8085 at iteration 0
+[2026-05-13 11:02:25] user 3 loss = 4.7484 at iteration 500
+[2026-05-13 11:06:11] user 3 loss = 4.7375 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 11:06:11] user 0 loss = 4.6849 at iteration 0
+[2026-05-13 11:11:16] user 0 loss = 4.6505 at iteration 500
+[2026-05-13 11:16:19] user 0 loss = 4.6189 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 11:16:19] user 2 loss = 4.6275 at iteration 0
+[2026-05-13 11:20:09] user 2 loss = 4.5943 at iteration 500
+[2026-05-13 11:23:56] user 2 loss = 4.5804 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 11:23:57] user 1 loss = 4.7291 at iteration 0
+[2026-05-13 11:27:48] user 1 loss = 4.6760 at iteration 500
+[2026-05-13 11:31:40] user 1 loss = 4.6477 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 11:31:41] user 4 loss = 4.7460 at iteration 0
+[2026-05-13 11:35:52] user 4 loss = 4.7072 at iteration 500
+[2026-05-13 11:40:02] user 4 loss = 4.6735 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 2275}
+[2026-05-13 11:40:03] Evaluate_02: epoch = 0000 test acc = 0.0669
+[2026-05-13 11:41:38] Evaluate_02: epoch = 0500 train loss = 0.001336 train acc = 1.0000, test acc = 0.0686
+[2026-05-13 11:43:12] Evaluate_02: epoch = 1000 train loss = 0.001724 train acc = 1.0000, test acc = 0.0700
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 11:43:12] Epoch = 0002 test acc = 0.0700
+ 15%|█▌        | 3/20 [1:48:15<10:41:23, 2263.75s/it]
+================== Epoch 3 ==================
+
+Choosing users 0 3 4 2 1
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 11:43:13] user 0 loss = 4.6877 at iteration 0
+[2026-05-13 11:48:37] user 0 loss = 4.6478 at iteration 500
+[2026-05-13 11:53:35] user 0 loss = 4.6310 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 11:53:35] user 3 loss = 4.7856 at iteration 0
+[2026-05-13 11:58:11] user 3 loss = 4.7330 at iteration 500
+[2026-05-13 12:02:56] user 3 loss = 4.7043 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:02:57] user 4 loss = 4.7296 at iteration 0
+[2026-05-13 12:07:22] user 4 loss = 4.6889 at iteration 500
+[2026-05-13 12:11:34] user 4 loss = 4.6668 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:11:35] user 2 loss = 4.6467 at iteration 0
+[2026-05-13 12:15:23] user 2 loss = 4.6108 at iteration 500
+[2026-05-13 12:19:07] user 2 loss = 4.5781 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:19:08] user 1 loss = 4.7374 at iteration 0
+[2026-05-13 12:22:54] user 1 loss = 4.7053 at iteration 500
+[2026-05-13 12:26:42] user 1 loss = 4.6823 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 2679}
+[2026-05-13 12:26:43] Evaluate_03: epoch = 0000 test acc = 0.0700
+[2026-05-13 12:28:43] Evaluate_03: epoch = 0500 train loss = 0.003776 train acc = 0.9994, test acc = 0.0688
+[2026-05-13 12:30:39] Evaluate_03: epoch = 1000 train loss = 0.000871 train acc = 1.0000, test acc = 0.0703
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 12:30:39] Epoch = 0003 test acc = 0.0703
+ 20%|██        | 4/20 [2:35:42<11:05:00, 2493.81s/it]
+================== Epoch 4 ==================
+
+Choosing users 2 0 4 3 1
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:30:39] user 2 loss = 4.6619 at iteration 0
+[2026-05-13 12:34:27] user 2 loss = 4.6335 at iteration 500
+[2026-05-13 12:38:19] user 2 loss = 4.5832 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:38:19] user 0 loss = 4.6707 at iteration 0
+[2026-05-13 12:43:29] user 0 loss = 4.6486 at iteration 500
+[2026-05-13 12:48:36] user 0 loss = 4.6263 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:48:37] user 4 loss = 4.7668 at iteration 0
+[2026-05-13 12:53:00] user 4 loss = 4.7063 at iteration 500
+[2026-05-13 12:57:13] user 4 loss = 4.6833 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 12:57:14] user 3 loss = 4.7860 at iteration 0
+[2026-05-13 13:01:55] user 3 loss = 4.7454 at iteration 500
+[2026-05-13 13:06:44] user 3 loss = 4.7302 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 13:06:45] user 1 loss = 4.7539 at iteration 0
+[2026-05-13 13:11:01] user 1 loss = 4.6800 at iteration 500
+[2026-05-13 13:15:55] user 1 loss = 4.6757 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 55335}
+[2026-05-13 13:15:56] Evaluate_04: epoch = 0000 test acc = 0.0703
+[2026-05-13 13:18:41] Evaluate_04: epoch = 0500 train loss = 0.027345 train acc = 0.9937, test acc = 0.0707
+[2026-05-13 13:21:15] Evaluate_04: epoch = 1000 train loss = 0.005855 train acc = 1.0000, test acc = 0.0692
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 13:21:15] Epoch = 0004 test acc = 0.0692
+ 25%|██▌       | 5/20 [3:26:18<11:12:23, 2689.54s/it]
+================== Epoch 5 ==================
+
+Choosing users 2 3 1 4 0
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 13:21:16] user 2 loss = 4.6349 at iteration 0
+[2026-05-13 13:24:54] user 2 loss = 4.5906 at iteration 500
+[2026-05-13 13:28:18] user 2 loss = 4.5758 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 13:28:18] user 3 loss = 4.7974 at iteration 0
+[2026-05-13 13:32:20] user 3 loss = 4.7321 at iteration 500
+[2026-05-13 13:36:26] user 3 loss = 4.7064 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 13:36:26] user 1 loss = 4.7054 at iteration 0
+[2026-05-13 13:39:38] user 1 loss = 4.6709 at iteration 500
+[2026-05-13 13:42:53] user 1 loss = 4.6613 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 13:42:54] user 4 loss = 4.7202 at iteration 0
+[2026-05-13 13:47:49] user 4 loss = 4.6684 at iteration 500
+[2026-05-13 13:53:08] user 4 loss = 4.6476 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 13:53:09] user 0 loss = 4.6995 at iteration 0
+[2026-05-13 13:59:21] user 0 loss = 4.6456 at iteration 500
+[2026-05-13 14:05:35] user 0 loss = 4.6230 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 35695}
+[2026-05-13 14:05:36] Evaluate_05: epoch = 0000 test acc = 0.0692
+[2026-05-13 14:09:04] Evaluate_05: epoch = 0500 train loss = 0.007775 train acc = 0.9980, test acc = 0.0709
+[2026-05-13 14:12:27] Evaluate_05: epoch = 1000 train loss = 0.004021 train acc = 0.9992, test acc = 0.0714
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 14:12:27] Epoch = 0005 test acc = 0.0714
+ 30%|███       | 6/20 [4:17:30<10:57:51, 2819.40s/it]
+================== Epoch 6 ==================
+
+Choosing users 2 3 0 1 4
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 14:12:27] user 2 loss = 4.6421 at iteration 0
+[2026-05-13 14:17:09] user 2 loss = 4.5929 at iteration 500
+[2026-05-13 14:21:46] user 2 loss = 4.5846 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 14:21:47] user 3 loss = 4.7512 at iteration 0
+[2026-05-13 14:27:29] user 3 loss = 4.7098 at iteration 500
+[2026-05-13 14:33:13] user 3 loss = 4.6940 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 14:33:14] user 0 loss = 4.6775 at iteration 0
+[2026-05-13 14:39:28] user 0 loss = 4.6295 at iteration 500
+[2026-05-13 14:45:50] user 0 loss = 4.6223 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 14:45:51] user 1 loss = 4.7255 at iteration 0
+[2026-05-13 14:50:39] user 1 loss = 4.6895 at iteration 500
+[2026-05-13 14:55:25] user 1 loss = 4.6696 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 14:55:25] user 4 loss = 4.7224 at iteration 0
+[2026-05-13 15:00:43] user 4 loss = 4.6916 at iteration 500
+[2026-05-13 15:05:55] user 4 loss = 4.6653 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 55653}
+[2026-05-13 15:05:56] Evaluate_06: epoch = 0000 test acc = 0.0714
+[2026-05-13 15:09:58] Evaluate_06: epoch = 0500 train loss = 0.005913 train acc = 0.9986, test acc = 0.0723
+[2026-05-13 15:14:18] Evaluate_06: epoch = 1000 train loss = 0.001462 train acc = 1.0000, test acc = 0.0731
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 15:14:18] Epoch = 0006 test acc = 0.0731
+ 35%|███▌      | 7/20 [5:19:21<11:14:03, 3111.02s/it]
+================== Epoch 7 ==================
+
+Choosing users 0 4 2 3 1
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 15:14:19] user 0 loss = 4.7141 at iteration 0
+[2026-05-13 15:21:00] user 0 loss = 4.6318 at iteration 500
+[2026-05-13 15:27:23] user 0 loss = 4.6292 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 15:27:23] user 4 loss = 4.7268 at iteration 0
+[2026-05-13 15:32:36] user 4 loss = 4.6790 at iteration 500
+[2026-05-13 15:37:46] user 4 loss = 4.6636 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 15:37:47] user 2 loss = 4.6194 at iteration 0
+[2026-05-13 15:42:35] user 2 loss = 4.5806 at iteration 500
+[2026-05-13 15:47:22] user 2 loss = 4.5672 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 15:47:23] user 3 loss = 4.8285 at iteration 0
+[2026-05-13 15:54:29] user 3 loss = 4.7428 at iteration 500
+[2026-05-13 16:00:33] user 3 loss = 4.7135 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 16:00:34] user 1 loss = 4.7015 at iteration 0
+[2026-05-13 16:05:40] user 1 loss = 4.6678 at iteration 500
+[2026-05-13 16:10:32] user 1 loss = 4.6473 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 32672}
+[2026-05-13 16:10:34] Evaluate_07: epoch = 0000 test acc = 0.0731
+[2026-05-13 16:15:18] Evaluate_07: epoch = 0500 train loss = 0.002532 train acc = 1.0000, test acc = 0.0729
+[2026-05-13 16:20:43] Evaluate_07: epoch = 1000 train loss = 0.000718 train acc = 1.0000, test acc = 0.0738
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 16:20:43] Epoch = 0007 test acc = 0.0738
+ 40%|████      | 8/20 [6:25:45<11:17:48, 3389.05s/it]
+================== Epoch 8 ==================
+
+Choosing users 4 0 3 1 2
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 16:20:43] user 4 loss = 4.7175 at iteration 0
+[2026-05-13 16:26:02] user 4 loss = 4.6895 at iteration 500
+[2026-05-13 16:30:20] user 4 loss = 4.6624 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 16:30:21] user 0 loss = 4.6832 at iteration 0
+[2026-05-13 16:35:21] user 0 loss = 4.6538 at iteration 500
+[2026-05-13 16:41:07] user 0 loss = 4.6216 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 16:41:08] user 3 loss = 4.8203 at iteration 0
+[2026-05-13 16:46:32] user 3 loss = 4.7563 at iteration 500
+[2026-05-13 16:51:45] user 3 loss = 4.7185 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 16:51:46] user 1 loss = 4.7640 at iteration 0
+[2026-05-13 16:56:15] user 1 loss = 4.6789 at iteration 500
+[2026-05-13 16:59:49] user 1 loss = 4.6658 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 16:59:49] user 2 loss = 4.6262 at iteration 0
+[2026-05-13 17:02:39] user 2 loss = 4.6017 at iteration 500
+[2026-05-13 17:05:18] user 2 loss = 4.5790 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 18489}
+[2026-05-13 17:05:19] Evaluate_08: epoch = 0000 test acc = 0.0738
+[2026-05-13 17:09:16] Evaluate_08: epoch = 0500 train loss = 0.001776 train acc = 0.9997, test acc = 0.0744
+[2026-05-13 17:13:15] Evaluate_08: epoch = 1000 train loss = 0.000766 train acc = 1.0000, test acc = 0.0739
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 17:13:15] Epoch = 0008 test acc = 0.0739
+ 45%|████▌     | 9/20 [7:18:18<10:07:46, 3315.11s/it]
+================== Epoch 9 ==================
+
+Choosing users 1 3 4 2 0
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 17:13:15] user 1 loss = 4.7289 at iteration 0
+[2026-05-13 17:16:18] user 1 loss = 4.6734 at iteration 500
+[2026-05-13 17:18:59] user 1 loss = 4.6728 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 17:19:00] user 3 loss = 4.8049 at iteration 0
+[2026-05-13 17:22:24] user 3 loss = 4.7295 at iteration 500
+[2026-05-13 17:25:43] user 3 loss = 4.7111 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 17:25:43] user 4 loss = 4.7166 at iteration 0
+[2026-05-13 17:28:33] user 4 loss = 4.6772 at iteration 500
+[2026-05-13 17:31:31] user 4 loss = 4.6429 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 17:31:31] user 2 loss = 4.6245 at iteration 0
+[2026-05-13 17:34:16] user 2 loss = 4.5861 at iteration 500
+[2026-05-13 17:36:59] user 2 loss = 4.5862 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 17:36:59] user 0 loss = 4.6652 at iteration 0
+[2026-05-13 17:41:01] user 0 loss = 4.6240 at iteration 500
+[2026-05-13 17:45:03] user 0 loss = 4.6315 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 3680}
+[2026-05-13 17:45:04] Evaluate_09: epoch = 0000 test acc = 0.0739
+[2026-05-13 17:49:22] Evaluate_09: epoch = 0500 train loss = 0.001808 train acc = 1.0000, test acc = 0.0752
+[2026-05-13 17:53:37] Evaluate_09: epoch = 1000 train loss = 0.000800 train acc = 1.0000, test acc = 0.0750
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 17:53:37] Epoch = 0009 test acc = 0.0750
+ 50%|█████     | 10/20 [7:58:39<8:26:32, 3039.24s/it]
+================== Epoch 10 ==================
+
+Choosing users 0 1 3 2 4
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 17:53:37] user 0 loss = 4.6967 at iteration 0
+[2026-05-13 17:57:25] user 0 loss = 4.6408 at iteration 500
+[2026-05-13 18:01:28] user 0 loss = 4.6206 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 18:01:28] user 1 loss = 4.7134 at iteration 0
+[2026-05-13 18:04:22] user 1 loss = 4.6752 at iteration 500
+[2026-05-13 18:07:14] user 1 loss = 4.6631 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 18:07:15] user 3 loss = 4.8152 at iteration 0
+[2026-05-13 18:10:58] user 3 loss = 4.7436 at iteration 500
+[2026-05-13 18:14:37] user 3 loss = 4.7164 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 18:14:38] user 2 loss = 4.6115 at iteration 0
+[2026-05-13 18:17:29] user 2 loss = 4.5894 at iteration 500
+[2026-05-13 18:20:17] user 2 loss = 4.5837 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 18:20:18] user 4 loss = 4.7275 at iteration 0
+[2026-05-13 18:25:29] user 4 loss = 4.6763 at iteration 500
+[2026-05-13 18:31:14] user 4 loss = 4.6781 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 74653}
+[2026-05-13 18:31:16] Evaluate_10: epoch = 0000 test acc = 0.0750
+[2026-05-13 18:40:54] Evaluate_10: epoch = 0500 train loss = 0.001245 train acc = 1.0000, test acc = 0.0758
+[2026-05-13 18:50:42] Evaluate_10: epoch = 1000 train loss = 0.001185 train acc = 1.0000, test acc = 0.0759
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 18:50:42] Epoch = 0010 test acc = 0.0759
+ 55%|█████▌    | 11/20 [8:55:45<7:53:37, 3157.52s/it]
+================== Epoch 11 ==================
+
+Choosing users 1 2 4 3 0
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 18:50:43] user 1 loss = 4.7539 at iteration 0
+[2026-05-13 18:55:52] user 1 loss = 4.6878 at iteration 500
+[2026-05-13 19:01:12] user 1 loss = 4.6671 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 19:01:13] user 2 loss = 4.6325 at iteration 0
+[2026-05-13 19:06:36] user 2 loss = 4.5935 at iteration 500
+[2026-05-13 19:11:56] user 2 loss = 4.5587 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 19:11:56] user 4 loss = 4.7304 at iteration 0
+[2026-05-13 19:18:12] user 4 loss = 4.6799 at iteration 500
+[2026-05-13 19:24:33] user 4 loss = 4.6559 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 19:24:34] user 3 loss = 4.8242 at iteration 0
+[2026-05-13 19:31:55] user 3 loss = 4.7430 at iteration 500
+[2026-05-13 19:38:27] user 3 loss = 4.7259 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 19:38:28] user 0 loss = 4.6696 at iteration 0
+[2026-05-13 19:44:05] user 0 loss = 4.6297 at iteration 500
+[2026-05-13 19:50:06] user 0 loss = 4.6212 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 6011}
+[2026-05-13 19:50:07] Evaluate_11: epoch = 0000 test acc = 0.0759
+[2026-05-13 19:58:41] Evaluate_11: epoch = 0500 train loss = 0.000765 train acc = 1.0000, test acc = 0.0768
+[2026-05-13 20:07:40] Evaluate_11: epoch = 1000 train loss = 0.001727 train acc = 0.9996, test acc = 0.0764
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 20:07:40] Epoch = 0011 test acc = 0.0764
+ 60%|██████    | 12/20 [10:12:43<8:00:13, 3601.63s/it]
+================== Epoch 12 ==================
+
+Choosing users 1 2 4 0 3
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 20:07:40] user 1 loss = 4.7078 at iteration 0
+[2026-05-13 20:12:03] user 1 loss = 4.6783 at iteration 500
+[2026-05-13 20:16:51] user 1 loss = 4.6497 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 20:16:51] user 2 loss = 4.6476 at iteration 0
+[2026-05-13 20:22:05] user 2 loss = 4.6121 at iteration 500
+[2026-05-13 20:27:24] user 2 loss = 4.5835 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 20:27:24] user 4 loss = 4.7613 at iteration 0
+[2026-05-13 20:33:23] user 4 loss = 4.7030 at iteration 500
+[2026-05-13 20:39:18] user 4 loss = 4.6598 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 20:39:19] user 0 loss = 4.6902 at iteration 0
+[2026-05-13 20:46:34] user 0 loss = 4.6539 at iteration 500
+[2026-05-13 20:53:36] user 0 loss = 4.6438 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 20:53:37] user 3 loss = 4.7892 at iteration 0
+[2026-05-13 20:59:09] user 3 loss = 4.7293 at iteration 500
+[2026-05-13 21:04:30] user 3 loss = 4.7109 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 70883}
+[2026-05-13 21:04:32] Evaluate_12: epoch = 0000 test acc = 0.0764
+[2026-05-13 21:12:59] Evaluate_12: epoch = 0500 train loss = 0.000451 train acc = 1.0000, test acc = 0.0770
+[2026-05-13 21:21:49] Evaluate_12: epoch = 1000 train loss = 0.000813 train acc = 1.0000, test acc = 0.0772
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 21:21:49] Epoch = 0012 test acc = 0.0772
+ 65%|██████▌   | 13/20 [11:26:52<7:30:09, 3858.53s/it]
+================== Epoch 13 ==================
+
+Choosing users 4 2 3 0 1
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 21:21:50] user 4 loss = 4.7345 at iteration 0
+[2026-05-13 21:27:08] user 4 loss = 4.6758 at iteration 500
+[2026-05-13 21:32:17] user 4 loss = 4.6536 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 21:32:17] user 2 loss = 4.6386 at iteration 0
+[2026-05-13 21:36:58] user 2 loss = 4.5942 at iteration 500
+[2026-05-13 21:41:15] user 2 loss = 4.5872 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 21:41:16] user 3 loss = 4.7857 at iteration 0
+[2026-05-13 21:46:39] user 3 loss = 4.7379 at iteration 500
+[2026-05-13 21:52:10] user 3 loss = 4.7072 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 21:52:10] user 0 loss = 4.6861 at iteration 0
+[2026-05-13 21:58:09] user 0 loss = 4.6371 at iteration 500
+[2026-05-13 22:03:53] user 0 loss = 4.6236 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 22:03:53] user 1 loss = 4.7134 at iteration 0
+[2026-05-13 22:08:15] user 1 loss = 4.6713 at iteration 500
+[2026-05-13 22:12:45] user 1 loss = 4.6524 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 65922}
+[2026-05-13 22:12:47] Evaluate_13: epoch = 0000 test acc = 0.0772
+[2026-05-13 22:22:22] Evaluate_13: epoch = 0500 train loss = 0.000571 train acc = 1.0000, test acc = 0.0778
+[2026-05-13 22:31:28] Evaluate_13: epoch = 1000 train loss = 0.000676 train acc = 1.0000, test acc = 0.0782
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 22:31:28] Epoch = 0013 test acc = 0.0782
+ 70%|███████   | 14/20 [12:36:31<6:35:31, 3955.20s/it]
+================== Epoch 14 ==================
+
+Choosing users 3 2 1 0 4
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 22:31:29] user 3 loss = 4.7920 at iteration 0
+[2026-05-13 22:36:44] user 3 loss = 4.7312 at iteration 500
+[2026-05-13 22:42:12] user 3 loss = 4.7138 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 22:42:12] user 2 loss = 4.6117 at iteration 0
+[2026-05-13 22:46:27] user 2 loss = 4.6018 at iteration 500
+[2026-05-13 22:50:51] user 2 loss = 4.5796 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 22:50:51] user 1 loss = 4.7492 at iteration 0
+[2026-05-13 22:54:57] user 1 loss = 4.6930 at iteration 500
+[2026-05-13 22:59:11] user 1 loss = 4.6761 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 22:59:11] user 0 loss = 4.7191 at iteration 0
+[2026-05-13 23:04:49] user 0 loss = 4.6432 at iteration 500
+[2026-05-13 23:10:35] user 0 loss = 4.6374 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 23:10:36] user 4 loss = 4.7245 at iteration 0
+[2026-05-13 23:15:22] user 4 loss = 4.6979 at iteration 500
+[2026-05-13 23:20:07] user 4 loss = 4.6824 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 7945}
+[2026-05-13 23:20:09] Evaluate_14: epoch = 0000 test acc = 0.0782
+[2026-05-13 23:30:13] Evaluate_14: epoch = 0500 train loss = 0.001849 train acc = 0.9993, test acc = 0.0786
+[2026-05-13 23:40:40] Evaluate_14: epoch = 1000 train loss = 0.000489 train acc = 1.0000, test acc = 0.0777
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-13 23:40:40] Epoch = 0014 test acc = 0.0777
+ 75%|███████▌  | 15/20 [13:45:43<5:34:33, 4014.66s/it]
+================== Epoch 15 ==================
+
+Choosing users 1 0 2 4 3
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 23:40:41] user 1 loss = 4.7036 at iteration 0
+[2026-05-13 23:45:24] user 1 loss = 4.6573 at iteration 500
+[2026-05-13 23:49:46] user 1 loss = 4.6617 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-13 23:49:46] user 0 loss = 4.6860 at iteration 0
+[2026-05-13 23:55:32] user 0 loss = 4.6374 at iteration 500
+[2026-05-14 00:01:25] user 0 loss = 4.6352 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 00:01:26] user 2 loss = 4.6515 at iteration 0
+[2026-05-14 00:05:51] user 2 loss = 4.5990 at iteration 500
+[2026-05-14 00:10:13] user 2 loss = 4.6096 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 00:10:13] user 4 loss = 4.7386 at iteration 0
+[2026-05-14 00:15:13] user 4 loss = 4.6935 at iteration 500
+[2026-05-14 00:20:07] user 4 loss = 4.6517 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 00:20:08] user 3 loss = 4.7917 at iteration 0
+[2026-05-14 00:25:43] user 3 loss = 4.7252 at iteration 500
+[2026-05-14 00:31:27] user 3 loss = 4.7069 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 87302}
+[2026-05-14 00:31:28] Evaluate_15: epoch = 0000 test acc = 0.0777
+[2026-05-14 00:42:24] Evaluate_15: epoch = 0500 train loss = 0.000485 train acc = 1.0000, test acc = 0.0782
+[2026-05-14 00:52:12] Evaluate_15: epoch = 1000 train loss = 0.000598 train acc = 1.0000, test acc = 0.0779
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-14 00:52:12] Epoch = 0015 test acc = 0.0779
+ 80%|████████  | 16/20 [14:57:15<4:33:12, 4098.06s/it]
+================== Epoch 16 ==================
+
+Choosing users 2 1 0 3 4
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 00:52:13] user 2 loss = 4.6403 at iteration 0
+[2026-05-14 00:56:27] user 2 loss = 4.5860 at iteration 500
+[2026-05-14 01:00:53] user 2 loss = 4.5863 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 01:00:53] user 1 loss = 4.7176 at iteration 0
+[2026-05-14 01:05:24] user 1 loss = 4.6827 at iteration 500
+[2026-05-14 01:09:47] user 1 loss = 4.6559 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 01:09:48] user 0 loss = 4.6869 at iteration 0
+[2026-05-14 01:16:13] user 0 loss = 4.6440 at iteration 500
+[2026-05-14 01:22:43] user 0 loss = 4.6221 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 01:22:43] user 3 loss = 4.8300 at iteration 0
+[2026-05-14 01:28:52] user 3 loss = 4.7494 at iteration 500
+[2026-05-14 01:34:38] user 3 loss = 4.7251 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 01:34:39] user 4 loss = 4.7438 at iteration 0
+[2026-05-14 01:39:55] user 4 loss = 4.6921 at iteration 500
+[2026-05-14 01:45:23] user 4 loss = 4.6770 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 23008}
+[2026-05-14 01:45:24] Evaluate_16: epoch = 0000 test acc = 0.0779
+[2026-05-14 01:59:43] Evaluate_16: epoch = 0500 train loss = 0.001539 train acc = 0.9997, test acc = 0.0783
+[2026-05-14 02:13:53] Evaluate_16: epoch = 1000 train loss = 0.000611 train acc = 1.0000, test acc = 0.0787
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-14 02:13:53] Epoch = 0016 test acc = 0.0787
+ 85%|████████▌ | 17/20 [16:18:56<3:36:58, 4339.57s/it]
+================== Epoch 17 ==================
+
+Choosing users 3 4 2 0 1
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 02:13:54] user 3 loss = 4.7965 at iteration 0
+[2026-05-14 02:20:03] user 3 loss = 4.7546 at iteration 500
+[2026-05-14 02:26:21] user 3 loss = 4.7271 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 02:26:22] user 4 loss = 4.7397 at iteration 0
+[2026-05-14 02:31:47] user 4 loss = 4.6729 at iteration 500
+[2026-05-14 02:37:25] user 4 loss = 4.6610 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 02:37:26] user 2 loss = 4.6062 at iteration 0
+[2026-05-14 02:42:31] user 2 loss = 4.5876 at iteration 500
+[2026-05-14 02:47:55] user 2 loss = 4.5757 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 02:47:56] user 0 loss = 4.6825 at iteration 0
+[2026-05-14 02:54:47] user 0 loss = 4.6416 at iteration 500
+[2026-05-14 03:01:44] user 0 loss = 4.6278 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 03:01:45] user 1 loss = 4.7105 at iteration 0
+[2026-05-14 03:07:10] user 1 loss = 4.6868 at iteration 500
+[2026-05-14 03:12:10] user 1 loss = 4.6607 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 30513}
+[2026-05-14 03:12:12] Evaluate_17: epoch = 0000 test acc = 0.0787
+[2026-05-14 03:25:31] Evaluate_17: epoch = 0500 train loss = 0.000350 train acc = 1.0000, test acc = 0.0783
+[2026-05-14 03:38:14] Evaluate_17: epoch = 1000 train loss = 0.000247 train acc = 1.0000, test acc = 0.0786
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-14 03:38:14] Epoch = 0017 test acc = 0.0786
+ 90%|█████████ | 18/20 [17:43:17<2:31:52, 4556.25s/it]
+================== Epoch 18 ==================
+
+Choosing users 4 1 2 0 3
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 03:38:15] user 4 loss = 4.7768 at iteration 0
+[2026-05-14 03:43:50] user 4 loss = 4.7013 at iteration 500
+[2026-05-14 03:49:15] user 4 loss = 4.6858 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 03:49:15] user 1 loss = 4.7600 at iteration 0
+[2026-05-14 03:54:09] user 1 loss = 4.7082 at iteration 500
+[2026-05-14 03:59:03] user 1 loss = 4.6700 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 03:59:03] user 2 loss = 4.6214 at iteration 0
+[2026-05-14 04:03:59] user 2 loss = 4.5913 at iteration 500
+[2026-05-14 04:08:54] user 2 loss = 4.5967 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 04:08:55] user 0 loss = 4.6868 at iteration 0
+[2026-05-14 04:15:56] user 0 loss = 4.6432 at iteration 500
+[2026-05-14 04:23:24] user 0 loss = 4.6116 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 04:23:25] user 3 loss = 4.7961 at iteration 0
+[2026-05-14 04:30:08] user 3 loss = 4.7479 at iteration 500
+[2026-05-14 04:36:45] user 3 loss = 4.7252 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 5604}
+[2026-05-14 04:36:47] Evaluate_18: epoch = 0000 test acc = 0.0786
+[2026-05-14 04:51:19] Evaluate_18: epoch = 0500 train loss = 0.000645 train acc = 0.9999, test acc = 0.0792
+[2026-05-14 05:04:55] Evaluate_18: epoch = 1000 train loss = 0.000268 train acc = 1.0000, test acc = 0.0795
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-14 05:04:55] Epoch = 0018 test acc = 0.0795
+ 95%|█████████▌| 19/20 [19:09:58<1:19:09, 4749.90s/it]
+================== Epoch 19 ==================
+
+Choosing users 2 3 1 0 4
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 05:04:56] user 2 loss = 4.6331 at iteration 0
+[2026-05-14 05:09:57] user 2 loss = 4.5895 at iteration 500
+[2026-05-14 05:14:42] user 2 loss = 4.5732 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 05:14:43] user 3 loss = 4.7932 at iteration 0
+[2026-05-14 05:20:34] user 3 loss = 4.7399 at iteration 500
+[2026-05-14 05:26:36] user 3 loss = 4.7073 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 05:26:37] user 1 loss = 4.7373 at iteration 0
+[2026-05-14 05:31:27] user 1 loss = 4.6866 at iteration 500
+[2026-05-14 05:36:21] user 1 loss = 4.6626 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 05:36:21] user 0 loss = 4.6947 at iteration 0
+[2026-05-14 05:43:22] user 0 loss = 4.6470 at iteration 500
+[2026-05-14 05:50:27] user 0 loss = 4.6305 at iteration 1000
+initialize synthetic data from random real images with pseudo labels
+[2026-05-14 05:50:28] user 4 loss = 4.7330 at iteration 0
+[2026-05-14 05:56:21] user 4 loss = 4.7085 at iteration 500
+[2026-05-14 06:01:55] user 4 loss = 4.6876 at iteration 1000
+DSA augmentation strategy: 
+color_crop_cutout_flip_scale_rotate
+DSA augmentation parameters: 
+{'aug_mode': 'S', 'prob_flip': 0.5, 'ratio_scale': 1.2, 'ratio_rotate': 15.0, 'ratio_crop_pad': 0.125, 'ratio_cutout': 0.5, 'ratio_noise': 0.05, 'brightness': 1.0, 'saturation': 2.0, 'contrast': 0.5, 'Siamese': True, 'latestseed': 15435}
+[2026-05-14 06:01:57] Evaluate_19: epoch = 0000 test acc = 0.0795
+[2026-05-14 06:16:13] Evaluate_19: epoch = 0500 train loss = 0.000381 train acc = 1.0000, test acc = 0.0793
+[2026-05-14 06:29:31] Evaluate_19: epoch = 1000 train loss = 0.000205 train acc = 1.0000, test acc = 0.0794
+Evaluate syns debug: loader_size: 40, batch_size: 256
+[2026-05-14 06:29:31] Epoch = 0019 test acc = 0.0794
+100%|██████████| 20/20 [20:34:34<00:00, 4847.69s/it]  100%|██████████| 20/20 [20:34:34<00:00, 3703.70s/it]
+[0.0602 0.0669 0.07   0.0703 0.0692 0.0714 0.0731 0.0738 0.0739 0.075
+ 0.0759 0.0764 0.0772 0.0782 0.0777 0.0779 0.0787 0.0786 0.0795 0.0794]
+[0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
