@@ -84,7 +84,7 @@ def cifar_noniid(dataset, num_users, extreme=False):
     dict_classes = {}
     # idxs = np.arange(num_shards*num_imgs)
     idxs = np.arange(len(dataset))
-    labels = np.array(dataset.targets, dtype='int64')
+    labels = np.array(dataset.targets if hasattr(dataset, 'targets') else dataset.labels, dtype='int64')
 
     # sort labels
     idxs_labels = np.vstack((idxs, labels))
@@ -112,12 +112,10 @@ def partition(dataset, num_users, alpha=0.5):
         min_size = 0
         min_require_size = 10
         K = 10
-        labels = np.array(dataset.targets, dtype='int64')
-        # labels = np.array(dataset.labels, dtype='int64')
-        # labels = np.array(dataset.dataset.targets, dtype='int64')[dataset.indices]
+        labels = np.array(dataset.targets if hasattr(dataset, 'targets') else dataset.labels, dtype='int64')
         N = labels.shape[0]
         np.random.seed(2020)
-        
+
         dict_users = {}
         dict_classes = {}
 
