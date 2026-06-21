@@ -153,9 +153,7 @@ def partition(dataset, num_users, alpha=0.5):
         return dict_users, dict_classes
         
 def partition_extreme(dataset, num_users):
-    labels = np.array(dataset.targets, dtype='int64')
-    # labels = np.array(dataset.dataset.targets, dtype='int64')[dataset.indices]
-    # labels = np.array(dataset.labels, dtype='int64')
+    labels = np.array(dataset.targets if hasattr(dataset, 'targets') else dataset.labels, dtype='int64')
     K = len(np.unique(labels))   # 类别数
 
     dict_users = {i: np.array([], dtype=np.int64) for i in range(num_users)}

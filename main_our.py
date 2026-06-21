@@ -229,7 +229,7 @@ def main():
         for idx in range(args.num_users):
             classes = dict_classes[idx]
             data_idxs = dict_users[idx]
-            labels = np.array(dst_train.targets, dtype='int64')
+            labels = np.array(dst_train.targets if hasattr(dst_train, 'targets') else dst_train.labels, dtype='int64')
             client_labels = labels[data_idxs]
             unique, counts = np.unique(client_labels, return_counts=True)
             # Label entropy: measures class balance (low = skewed non-IID)

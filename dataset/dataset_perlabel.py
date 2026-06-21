@@ -103,7 +103,7 @@ class PerLabelLargeDataset(): # load images on the fly
         self.num_classes = num_classes
         self.args = args
 
-        self.targets = torch.tensor(self.dst_train.targets)
+        self.targets = torch.tensor(self.dst_train.targets if hasattr(self.dst_train, 'targets') else self.dst_train.labels)
         self.perlabel_loaders = []
         #### TODO: DELETE THIS 
         print("!!!!WARNING!!!!\n"*3)
