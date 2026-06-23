@@ -83,6 +83,25 @@ class ConvNet(nn.Module):
         out = out.view(out.size(0), -1)
         return out
 
+    def get_feature_mutil(self, x):
+        """Return list of features at each pooling stage (for multi-layer CF matching).
+
+        Walks through self.features (nn.Sequential) and collects flattened feature
+        maps after each pooling layer. The final entry is the pre-classifier embedding.
+
+        Returns:
+            list of tensors, each [B, C*H*W] flattened
+        """
+        features = []
+        out = x
+        for layer in self.features:
+            out = layer(out)
+            if isinstance(layer, (nn.AvgPool2d, nn.MaxPool2d)):
+                features.append(out.view(out.size(0), -1))
+        # Final feature map (after all conv blocks, before classifier)
+        features.append(out.view(out.size(0), -1))
+        return features
+
     def _get_normlayer(self, net_norm, shape_feat):
         # shape_feat = (c*h*w)
         if net_norm == 'batchnorm':

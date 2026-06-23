@@ -22,6 +22,7 @@ from dataset.dataset_perlabel import *
 # from cifar10_models.resnet import resnet18
 from m3d import M3DLoss
 from coral import CORAL
+from cf_loss import CFLossFunc, SampleNet, cf_match_loss, cf_calib_loss, compute_feature_dim
 
 def downscale(image_syn, scale_factor):
     image_syn = F.upsample(image_syn, scale_factor=scale_factor, mode='bilinear')
@@ -86,6 +87,28 @@ def main():
     parser.add_argument('--kernel_bw_reg', type=float, default=0.001, help='bandwidth deviation regularisation weight')
     parser.add_argument('--kernel_type', type=str, default='gaussian', choices=['gaussian', 'laplace', 'linear', 'polynomial'], help='kernel type for M3D loss')
     parser.add_argument('--kernel_lr_scale', type=float, default=0.1, help='learning rate scale for kernel params relative to lr_img')
+    #### NCFM / CF loss
+    parser.add_argument('--loss_type', type=str, default='m3d',
+                        choices=['m3d', 'cf', 'cf_coral', 'cf_calib'],
+                        help='loss type: m3d (original M3D+CORAL), cf (CF only), cf_coral (CF+CORAL), cf_calib (CF+calibration)')
+    parser.add_argument('--cf_loss_scale', type=float, default=300.0,
+                        help='scaling factor for CF loss')
+    parser.add_argument('--num_freqs', type=int, default=4096,
+                        help='number of random frequencies for CF projection')
+    parser.add_argument('--alpha_for_loss', type=float, default=0.5,
+                        help='weight for amplitude in CF loss')
+    parser.add_argument('--beta_for_loss', type=float, default=0.5,
+                        help='weight for phase in CF loss')
+    parser.add_argument('--sampling_net', type=int, default=0,
+                        help='use adversarial SampleNet for CF frequencies (1=enabled)')
+    parser.add_argument('--lr_sampling_net', type=float, default=1e-3,
+                        help='learning rate for SampleNet')
+    parser.add_argument('--sample_net_dim', type=int, default=None,
+                        help='feature dim for SampleNet (None=auto-detect)')
+    parser.add_argument('--calib_weight', type=float, default=1.0,
+                        help='weight for calibration loss')
+    parser.add_argument('--iter_calib', type=int, default=0,
+                        help='number of calibration iterations per inner loop')
     args = parser.parse_args()
     # For speeding up, we can decrease the Iteration and epoch_eval_train, which will not cause significant performance decrease.
 
@@ -116,6 +139,7 @@ def main():
     exp_id += f'_[loop={args.outer_loop}x{args.inner_loop}]'
     exp_id += f'_[{args.match_mode}]'
     exp_id += f'_[{args.method}]'
+    exp_id += f'_[loss-{args.loss_type}]'
     exp_id += f'_[alpha={args.alpha}]'
     if args.progress_perturb: rho_tag = f'{args.rho}up'
     else: rho_tag = f'{args.rho}'
@@ -208,21 +232,65 @@ def main():
             #给每个客户端生成一个LocalUser，包括 划分好的数据集，合成样本
             user_states[idx] = LocalUser(dst_perlabel, image_syn)
 
-        # --- Per-client learnable M3D criterion (persists across rounds) ---
+        # --- Per-client loss criterion (persists across rounds) ---
         user_m3d = {}
+        user_cf_loss = {}
+        user_sampling_net = {}
+        user_optim_sampling_net = {}
+
+        # Determine feature dim for SampleNet if needed
+        cf_ft_dim = None
+        if args.loss_type in ['cf', 'cf_coral', 'cf_calib'] and args.sampling_net:
+            if args.sample_net_dim is not None:
+                cf_ft_dim = args.sample_net_dim
+            else:
+                # Auto-detect from a temporary model
+                tmp_model = get_network(args.model, channel, num_classes, im_size).cuda()
+                cf_ft_dim = compute_feature_dim(tmp_model, channel, im_size)
+                del tmp_model
+                logging.info('Auto-detected feature dim for SampleNet: %d' % cf_ft_dim)
+
         for idx in range(args.num_users):
-            user_m3d[idx] = M3DLoss(
-                kernel_type=args.kernel_type,
-                n_kernels=5,
-                learnable=bool(args.learnable_kernel),
-                ent_weight=args.kernel_ent_weight,
-                bw_reg_weight=args.kernel_bw_reg,
-            ).cuda()
-            if args.learnable_kernel:
-                logging.info('User %d: learnable M3D kernel initialised '
-                             '(kernel_type=%s, ent_weight=%.4f, bw_reg=%.4f)' %
-                             (idx, args.kernel_type, args.kernel_ent_weight,
-                              args.kernel_bw_reg))
+            # --- CF loss initialization ---
+            if args.loss_type in ['cf', 'cf_coral', 'cf_calib']:
+                user_cf_loss[idx] = CFLossFunc(
+                    alpha_for_loss=args.alpha_for_loss,
+                    beta_for_loss=args.beta_for_loss,
+                ).cuda()
+                logging.info('User %d: CFLossFunc initialised (alpha=%.2f, beta=%.2f)' %
+                             (idx, args.alpha_for_loss, args.beta_for_loss))
+
+                if args.sampling_net:
+                    user_sampling_net[idx] = SampleNet(
+                        feature_dim=cf_ft_dim, t_batchsize=args.num_freqs
+                    ).cuda()
+                    user_optim_sampling_net[idx] = torch.optim.SGD(
+                        user_sampling_net[idx].parameters(),
+                        lr=args.lr_sampling_net, momentum=0.5
+                    )
+                    logging.info('User %d: SampleNet initialised (feature_dim=%d, num_freqs=%d)' %
+                                 (idx, cf_ft_dim, args.num_freqs))
+            else:
+                user_cf_loss[idx] = None
+                user_sampling_net[idx] = None
+                user_optim_sampling_net[idx] = None
+
+            # --- M3D loss initialization (for m3d loss_type only) ---
+            if args.loss_type == 'm3d':
+                user_m3d[idx] = M3DLoss(
+                    kernel_type=args.kernel_type,
+                    n_kernels=5,
+                    learnable=bool(args.learnable_kernel),
+                    ent_weight=args.kernel_ent_weight,
+                    bw_reg_weight=args.kernel_bw_reg,
+                ).cuda()
+                if args.learnable_kernel:
+                    logging.info('User %d: learnable M3D kernel initialised '
+                                 '(kernel_type=%s, ent_weight=%.4f, bw_reg=%.4f)' %
+                                 (idx, args.kernel_type, args.kernel_ent_weight,
+                                  args.kernel_bw_reg))
+            else:
+                user_m3d[idx] = None
 
         # --- Save per-client data statistics for kernel–data correlation analysis ---
         client_stats = {}
@@ -300,12 +368,15 @@ def main():
 
 
                 image_syn.requires_grad_()
-                # --- Retrieve persisted per-client learnable M3D criterion ---
-                m3d_criterion = user_m3d[idx]
+                # --- Retrieve persisted per-client loss criterion ---
+                m3d_criterion = user_m3d[idx] if args.loss_type == 'm3d' else None
+                cf_loss_func = user_cf_loss[idx] if args.loss_type in ['cf', 'cf_coral', 'cf_calib'] else None
+                sampling_net = user_sampling_net[idx] if args.sampling_net else None
+                optim_sampling_net = user_optim_sampling_net[idx] if args.sampling_net else None
 
                 # Build optimizer: synthetic images + (optionally) learnable kernel params
                 opt_params = [image_syn]
-                if args.learnable_kernel:
+                if args.loss_type == 'm3d' and args.learnable_kernel:
                     kernel_params = list(m3d_criterion.kernel_parameters())
                     opt_params.extend(kernel_params)
                 optimizer_img = get_optimizer(opt_params, args.opt_X, lr=args.lr_img,
@@ -317,7 +388,7 @@ def main():
                         net = random_perturb(copy.deepcopy(global_model))
                     else:
                         net = get_network(args.model, channel, num_classes, im_size).cuda() # get a random model
-                    
+
                     net.train()
                     for param in list(net.parameters()):
                         param.requires_grad = False
@@ -352,43 +423,96 @@ def main():
                                 img_real = DiffAugment(img_real, args.dsa_strategy, seed=seed, param=args.dsa_param)
                                 img_syn = DiffAugment(img_syn, args.dsa_strategy, seed=seed, param=args.dsa_param)
 
-                            # output_real = embed(img_real).detach()
-                            # output_syn = embed(img_syn)
-                            ft_real, logit_real= net(img_real,train=True)
-                            ft_syn, logit_syn= net(img_syn,train=True)
-                            
-
                             labs_syn  = torch.cat([labs_syn, lab_syn], dim=0)
 
-                            # ---------add M3D----------
-                            loss += m3d_criterion(ft_real, ft_syn)
-                            loss += CORAL(ft_real, ft_syn)
-                            if curr_epoch > 0:
-                                output_real_new = embed_new(img_real).detach()
-                                output_syn_new = embed_new(img_syn)
-                                 # ---------add M3D----------
-                                # loss += m3d_criterion(output_real_new, output_syn_new)+0.01*(torch.norm(image_syn) ** 2)#this is wrong
-                                loss += m3d_criterion(output_real_new, output_syn_new)
-                                loss += 0.1*CORAL(output_real_new, output_syn_new)
-  
-                    
-                    optimizer_img.zero_grad()
-                    loss.backward()
+                            # ============================================================
+                            # LOSS DISPATCH: m3d / cf / cf_coral / cf_calib
+                            # ============================================================
+                            if args.loss_type in ['cf', 'cf_coral', 'cf_calib']:
+                                # --- CF loss on perturbed global model ---
+                                loss += cf_match_loss(img_real, img_syn, net,
+                                                      cf_loss_func, sampling_net, args)
+                                if args.loss_type == 'cf_coral':
+                                    ft_real, _ = net(img_real, train=True)
+                                    ft_syn, _ = net(img_syn, train=True)
+                                    loss += CORAL(ft_real, ft_syn)
 
-                    # Scale kernel parameter gradients for effective lr = lr_img * kernel_lr_scale
-                    if args.learnable_kernel:
-                        for p in m3d_criterion.kernel_parameters():
-                            if p.grad is not None:
-                                p.grad.mul_(args.kernel_lr_scale)
+                                if curr_epoch > 0:
+                                    # --- CF loss on random model (regularization) ---
+                                    loss += cf_match_loss(img_real, img_syn, new_net,
+                                                          cf_loss_func, sampling_net, args)
+                                    if args.loss_type == 'cf_coral':
+                                        ft_real_n = embed_new(img_real).detach()
+                                        ft_syn_n = embed_new(img_syn)
+                                        loss += 0.1 * CORAL(ft_real_n, ft_syn_n)
 
-                    optimizer_img.step()
+                            elif args.loss_type == 'm3d':
+                                # --- Original M3D + CORAL path ---
+                                ft_real, logit_real= net(img_real,train=True)
+                                ft_syn, logit_syn= net(img_syn,train=True)
+                                loss += m3d_criterion(ft_real, ft_syn)
+                                loss += CORAL(ft_real, ft_syn)
+                                if curr_epoch > 0:
+                                    output_real_new = embed_new(img_real).detach()
+                                    output_syn_new = embed_new(img_syn)
+                                    loss += m3d_criterion(output_real_new, output_syn_new)
+                                    loss += 0.1*CORAL(output_real_new, output_syn_new)
+
+
+                    # ============================================================
+                    # BACKWARD: handle SampleNet minmax vs standard update
+                    # ============================================================
+                    if args.loss_type in ['cf', 'cf_coral', 'cf_calib'] and args.sampling_net:
+                        # Minmax: images MINIMIZE loss, SampleNet MAXIMIZES loss
+                        optimizer_img.zero_grad()
+                        if optim_sampling_net is not None:
+                            optim_sampling_net.zero_grad()
+                        loss.backward(retain_graph=True)
+                        optimizer_img.step()
+
+                        # Adversarial step for SampleNet
+                        if optim_sampling_net is not None:
+                            optimizer_img.zero_grad()
+                            optim_sampling_net.zero_grad()
+                            (-loss).backward()
+                            optim_sampling_net.step()
+                    else:
+                        optimizer_img.zero_grad()
+                        loss.backward()
+
+                        # Scale kernel parameter gradients (m3d mode only)
+                        if args.loss_type == 'm3d' and args.learnable_kernel:
+                            for p in m3d_criterion.kernel_parameters():
+                                if p.grad is not None:
+                                    p.grad.mul_(args.kernel_lr_scale)
+
+                        optimizer_img.step()
                     loss_avg += loss.item()
 
+                    # ============================================================
+                    # CALIBRATION LOSS (cf_calib mode, after match loss)
+                    # ============================================================
+                    if args.loss_type == 'cf_calib' and args.iter_calib > 0:
+                        for _ in range(args.iter_calib):
+                            cal_loss = torch.tensor(0.0).cuda()
+                            for i, c in enumerate(classes):
+                                img_syn_c = image_syn[i*args.ipc:(i+1)*args.ipc].reshape(
+                                    (args.ipc, channel, im_size[0], im_size[1]))
+                                lab_syn_c = torch.ones((args.ipc,), device=args.device, dtype=torch.long) * c
+                                if args.dsa:
+                                    seed = int(time.time() * 1000) % 100000
+                                    img_syn_c = DiffAugment(img_syn_c, args.dsa_strategy, seed=seed, param=args.dsa_param)
+                                cal_loss += cf_calib_loss(img_syn_c, lab_syn_c, global_model)
+                            cal_loss = args.calib_weight * cal_loss
+                            optimizer_img.zero_grad()
+                            cal_loss.backward()
+                            optimizer_img.step()
+                            loss_avg += cal_loss.item()
 
                     loss_avg /= len(classes)
                     if it % 500 == 0 or it == args.Iteration:
                         logging.info('%s user %d loss = %.4f at iteration %d' % (get_time(), idx, loss_avg, it))
-                        if args.learnable_kernel:
+                        if args.loss_type == 'm3d' and args.learnable_kernel:
                             kw = m3d_criterion.get_kernel_weights()
                             bw = m3d_criterion.get_bandwidth_multipliers()
                             if kw is not None:
@@ -396,8 +520,8 @@ def main():
                             if bw is not None:
                                 logging.info('  [Kernel] bandwidth multipliers: %s' % str(bw.numpy()))
 
-                # --- Log final kernel configuration after inner loop ---
-                if args.learnable_kernel:
+                # --- Log final kernel configuration after inner loop (m3d only) ---
+                if args.loss_type == 'm3d' and args.learnable_kernel:
                     kw_final = m3d_criterion.get_kernel_weights()
                     bw_final = m3d_criterion.get_bandwidth_multipliers()
                     logging.info('%s user %d [Kernel Final] epoch=%d weights=%s' %
@@ -463,8 +587,8 @@ def main():
             logging.info('%s Epoch = %04d test acc = %.4f' % (get_time(), curr_epoch, acc_full_test))
             fed_accs.append(acc_full_test)
 
-            # --- Save kernel state for ALL clients after each epoch ---
-            if args.learnable_kernel:
+            # --- Save kernel state for ALL clients after each epoch (m3d only) ---
+            if args.loss_type == 'm3d' and args.learnable_kernel:
                 kernel_state = {}
                 for uidx in range(args.num_users):
                     kw = user_m3d[uidx].get_kernel_weights()
