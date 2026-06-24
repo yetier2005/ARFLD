@@ -111,8 +111,8 @@ def cifar_noniid(dataset, num_users, extreme=False):
 def partition(dataset, num_users, alpha=0.5):
         min_size = 0
         min_require_size = 10
-        K = 10
         labels = np.array(dataset.targets if hasattr(dataset, 'targets') else dataset.labels, dtype='int64')
+        K = len(np.unique(labels))
         N = labels.shape[0]
         np.random.seed(2020)
 
