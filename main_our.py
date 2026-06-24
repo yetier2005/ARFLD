@@ -382,28 +382,39 @@ def main():
                 optimizer_img = get_optimizer(opt_params, args.opt_X, lr=args.lr_img,
                                               weight_decay=0, rho=0, momentum=0.5)
                 optimizer_img.zero_grad()
+
+                # --- Pre-create random model once per FL round (was inside loop!) ---
+                new_net = get_network(args.model, channel, num_classes, im_size).cuda()
+                new_net.train()
+                for param in list(new_net.parameters()):
+                    param.requires_grad = False
+                embed_new = new_net.module.embed if torch.cuda.device_count() > 1 else new_net.embed
+
+                # Pre-create fallback random model for epoch 0 (reused across iterations)
+                random_net_0 = get_network(args.model, channel, num_classes, im_size).cuda()
+                random_net_0.train()
+                for param in list(random_net_0.parameters()):
+                    param.requires_grad = False
+                embed_0 = random_net_0.module.embed if torch.cuda.device_count() > 1 else random_net_0.embed
+
+                # Fast BN check: only need to check once since architecture is fixed
+                BN_flag = False
+                for module in new_net.modules():
+                    if 'BatchNorm' in module._get_name():
+                        BN_flag = True
+                        break
+
                 for it in range(args.Iteration+1):
                     loss_avg = 0
                     if curr_epoch != 0:
                         net = random_perturb(copy.deepcopy(global_model))
                     else:
-                        net = get_network(args.model, channel, num_classes, im_size).cuda() # get a random model
+                        net = random_net_0  # reuse pre-created random model
 
                     net.train()
                     for param in list(net.parameters()):
                         param.requires_grad = False
                     embed = net.module.embed if torch.cuda.device_count() > 1 else net.embed
-
-                    new_net = get_network(args.model, channel, num_classes, im_size).cuda()
-                    new_net.train()
-                    for param in list(new_net.parameters()):
-                        param.requires_grad = False
-                    embed_new = new_net.module.embed if torch.cuda.device_count() > 1 else new_net.embed
-
-                    BN_flag = False
-                    for module in net.modules():
-                        if 'BatchNorm' in module._get_name(): #BatchNorm
-                            BN_flag = True
 
                     ## update synthetic data
                     if not BN_flag:
